@@ -21,8 +21,6 @@ class BaseUserModel:
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_staff: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    password_1: Mapped[str] = mapped_column(String(length=60), nullable=True)
-    password_2: Mapped[str] = mapped_column(String(length=60), nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(length=1024), nullable=False)
 
 
@@ -38,7 +36,7 @@ class UserModel(BaseUserModel, Base):
     bio: Mapped[str] = mapped_column(String(length=2000), default="", nullable=True)
     avatar_url: Mapped[str] = mapped_column(
         String(length=150), nullable=True
-    )  # найти дефолт урл ту аватара пользователя
+    )  # найти дефолт урл ту аватар пользователя
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -48,10 +46,10 @@ class UserModel(BaseUserModel, Base):
         return f"UserModel(id={self.id}, username={self.username})"
 
     def __str__(self):
-        return f"User id={self.id} username={self.username}"
+        return f"{self.username}"
 
     def _generate_default_username(self):
-        return f"username{self.id}"
+        return f"username_{self.id}"
 
     def set_default_values(self):
         if not self.username:
