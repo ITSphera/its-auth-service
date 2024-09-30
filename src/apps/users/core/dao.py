@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import async_session_maker
 from models import UserModel
+from schemas.user import CreateUserSchema
 
 
 class BaseDAO:
@@ -31,10 +32,12 @@ class UserDAO(BaseDAO):
             return user
 
     @classmethod
-    async def add(cls, **user_data: dict):
+    async def add(cls, reg_user: CreateUserSchema):
         async with async_session_maker() as session:
             session: AsyncSession
-            new_user = UserModel(**user_data)
+            email = reg_user.email
+            password_1 = reg_user.password_1
+            new_user = UserModel(email=email, hashed_password=password_1)
             session.add(new_user)
             await session.commit()
             return new_user
