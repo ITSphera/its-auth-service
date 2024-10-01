@@ -19,6 +19,8 @@ async def create_user(registration_user_data: CreateUserSchema) -> JSONResponse:
             detail=user_responses.USER_ALREADY_EXISTS,
         )
 
-    registration_user_data.password_1 = get_password_hash(registration_user_data.password_1)
+    registration_user_data.password_1 = get_password_hash(
+        registration_user_data.password_1
+    )
     new_user = await UserDAO.add(registration_user_data)
     return JSONResponse(status_code=201, content=f"Успешно. Вот юзер: {new_user}")

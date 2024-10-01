@@ -33,13 +33,16 @@ class HashingSettings:
         self.SECRET_KEY = os.environ.get("SECRET_KEY")
         self.ALGORITHM = os.environ.get("ALGORITHM")
 
+
 @lru_cache
 def get_database_settings():
     return DatabaseSettings()
 
+
 @lru_cache
 def get_server_settings():
     return ServerSettings()
+
 
 @lru_cache
 def get_auth_data():
