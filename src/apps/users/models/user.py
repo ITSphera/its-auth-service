@@ -1,4 +1,4 @@
-from sqlalchemy import String, Boolean, Integer
+from sqlalchemy import String, Boolean, Integer, orm, event
 from sqlalchemy.orm import Mapped, mapped_column
 from common.models import Base
 
@@ -27,7 +27,7 @@ class BaseUserModel:
 class UserModel(BaseUserModel, Base):
     __tablename__ = "users"
 
-    display_name: Mapped[str] = mapped_column(String(length=64), nullable=False)
+    display_name: Mapped[str] = mapped_column(String(length=64), nullable=True)
     phone_number: Mapped[str] = mapped_column(String(length=16), nullable=True)
     country: Mapped[str] = mapped_column(String(length=30), nullable=True)
     city: Mapped[str] = mapped_column(String(length=35), nullable=True)
@@ -40,7 +40,6 @@ class UserModel(BaseUserModel, Base):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.set_default_values()
 
     def __repr__(self):
         return f"UserModel(id={self.id}, username={self.username})"
@@ -51,8 +50,14 @@ class UserModel(BaseUserModel, Base):
     def _generate_default_username(self):
         return f"username_{self.id}"
 
-    def set_default_values(self):
-        if not self.username:
-            self.username = self._generate_default_username()
-        if not self.display_name:
-            self.display_name = self.username
+
+# Используем событие after_insert для генерации username после присвоения ID
+@event.listens_for(UserModel, "after_insert")
+def after_insert(mapper, connection, target):
+    # Генерируем имя пользователя после того, как запись сохранена и ID присвоен
+    if not target.username:
+        target.username = target._generate_default_username()
+        # Обновляем запись с новым username
+        connection.execute(
+            target.__table__.update().where(target.__table__.c.id == target.id).values(username=target.username, display_name=target.username)
+        )
